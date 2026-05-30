@@ -300,7 +300,7 @@ const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
 })();
 
 /* ══════════════════════════════════════════════════
-   DONATION AMOUNT SELECTOR & IMPACT CALCULATOR
+   SERVICE SELECTOR & WHAT'S INCLUDED CALCULATOR
 ══════════════════════════════════════════════════ */
 (function initDonation() {
   const amountBtns = $$('.amount-btn');
@@ -309,31 +309,29 @@ const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
   const impactAmount = $('#impact-amount');
   const impactDesc = $('#impact-description');
   const impactIcon = $('#impact-description')?.closest('.impact-result')?.querySelector('.impact-icon');
-  const donateAmountLabel = $('#donate-amount-label');
   const donateBtn = $('#donate-btn');
   const donateTypeTabs = $$('.donate-tab');
 
   if (!amountBtns.length) return;
 
+  const serviceLabels = { 10: 'Bookkeeping', 25: 'Accountancy', 50: 'Xero Setup', 100: 'Payroll' };
+
   const impacts = {
-    10: { icon: '🌱', desc: 'Provide essential school supplies for one child for a full term' },
-    25: { icon: '📚', desc: 'Provide a full month of educational materials for one student' },
-    50: { icon: '🤝', desc: 'Fund a community workshop session for up to 15 participants' },
-    100: { icon: '🏫', desc: 'Support a week of our youth leadership training programme' },
-    default: { icon: '💛', desc: 'Make a significant impact across multiple programme areas' }
+    10: { icon: '📒', desc: 'Accurate, up-to-date bookkeeping, bank reconciliations, and monthly management reports so you always know where your finances stand' },
+    25: { icon: '📊', desc: 'Year-end accounts, corporation tax returns, Companies House filing, and strategic financial advice tailored to your business' },
+    50: { icon: '☁️', desc: 'Full Xero setup, data migration, team training, and ongoing Xero support so you can manage your finances from anywhere, on any device' },
+    100: { icon: '👥', desc: 'Monthly payroll processing, RTI submissions, PAYE management, payslips, and year-end P60s — all handled accurately and on time' },
+    default: { icon: '✨', desc: 'A fully bespoke package combining all the services your business needs — bookkeeping, accountancy, VAT, payroll, and advisory support' }
   };
 
   let selectedAmount = 25;
 
   const updateImpact = amount => {
     const data = impacts[amount] || impacts.default;
-    if (impactAmount) impactAmount.textContent = amount || '?';
+    const label = serviceLabels[amount] || 'All Services';
+    if (impactAmount) impactAmount.textContent = label;
     if (impactDesc) impactDesc.textContent = data.desc;
     if (impactIcon) impactIcon.textContent = data.icon;
-    if (donateAmountLabel) donateAmountLabel.textContent = amount || '?';
-    if (donateBtn) {
-      donateBtn.setAttribute('aria-label', `Proceed to donate £${amount}`);
-    }
   };
 
   amountBtns.forEach(btn => {
@@ -349,8 +347,8 @@ const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
       if (val === 'custom') {
         customWrap.hidden = false;
         customInput.focus();
-        selectedAmount = parseInt(customInput.value, 10) || null;
-        updateImpact(selectedAmount);
+        selectedAmount = null;
+        updateImpact(null);
       } else {
         customWrap.hidden = true;
         selectedAmount = parseInt(val, 10);
@@ -359,15 +357,7 @@ const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
     });
   });
 
-  on(customInput, 'input', () => {
-    const val = parseInt(customInput.value, 10);
-    if (val > 0) {
-      selectedAmount = val;
-      updateImpact(val);
-    }
-  });
-
-  // Donation type tabs
+  // Service type tabs (Small Business / Charity)
   donateTypeTabs.forEach(tab => {
     on(tab, 'click', () => {
       donateTypeTabs.forEach(t => {
@@ -377,13 +367,6 @@ const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
     });
-  });
-
-  // Donate button action
-  on(donateBtn, 'click', e => {
-    e.preventDefault();
-    // In a real implementation, redirect to payment processor
-    alert(`Thank you for your generosity! You'll now be redirected to our secure payment page to complete your £${selectedAmount || '?'} donation.`);
   });
 
   // Initialize
